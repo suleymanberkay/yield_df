@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Yield Prediction App</title>
+</head>
+<body>
+    <h1>Yield Prediction</h1>
+    <form method="POST" action="/predict">
+        <label>Average Rainfall (mm/year):</label>
+        <input type="text" name="average_rain_fall_mm_per_year" required><br>
+        <label>Pesticides (tonnes):</label>
+        <input type="text" name="pesticides_tonnes" required><br>
+        <label>Average Temperature (°C):</label>
+        <input type="text" name="avg_temp" required><br>
+        <label>Area:</label>
+        <input type="text" name="Area" required><br>
+        <label>Item:</label>
+        <input type="text" name="Item" required><br>
+        <button type="submit">Predict</button>
+    </form>
+    {% if prediction %}
+        <h2>Predicted Yield: {{ prediction }} kg/ha</h2>
+    {% endif %}
+</body>
+</html>
