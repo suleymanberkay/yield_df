@@ -1,5 +1,8 @@
 # IoT-Integrated Agricultural Yield Prediction
 
+VIDEO LINK:
+https://aguedutr.sharepoint.com/:v:/s/asd/ESA0AzIrFm1LifmTWYKwA0QBuEJWuWbw4RGEgrkzw7_huw?e=rPvOb2&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
+
 ### Overview
 This project leverages IoT and machine learning to predict agricultural crop yields using real-time environmental data. By integrating an ESP32 microcontroller and a DHT11 sensor, the system collects temperature and humidity data, processes it using a trained TensorFlow Lite model, and provides yield predictions. The results are visualized on ThingSpeak for real-time monitoring.
 

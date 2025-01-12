@@ -1,54 +1,48 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, render_template
 import pandas as pd
-import numpy as np
 from joblib import load
+import numpy as np
 
 # Flask uygulaması
 app = Flask(__name__)
 
-# Model ve ön işleme araçlarını yükleme
+# Modeli yükleme
 model = load('model_pipeline.joblib')
 
 @app.route('/')
 def index():
-    return "IoT Tahmin Sistemi"
+    return render_template('index.html')  # Kullanıcı arayüzü (HTML)
 
-@app.route('/api/sensor', methods=['POST'])
-def predict_from_sensor():
-    data = request.get_json()
+@app.route('/predict', methods=['POST'])
+def predict():
+    if request.method == 'POST':
+        # Kullanıcıdan gelen verileri al
+        average_rain_fall_mm_per_year = float(request.form['average_rain_fall_mm_per_year'])
+        pesticides_tonnes = float(request.form['pesticides_tonnes'])
+        avg_temp = float(request.form['avg_temp'])
+        Area = request.form['Area']
+        Item = request.form['Item']
+        
+        # Eksik özellikleri hesaplama
+        pesticides_per_hectare = pesticides_tonnes / (average_rain_fall_mm_per_year / 10000 + 1e-6)
+        rainfall_std = average_rain_fall_mm_per_year / avg_temp
 
-    # Sensör verileri
-    avg_temp = data['avg_temp']
-    average_rain_fall_mm_per_year = data['average_rain_fall_mm_per_year']
-    Item = data['Item']  # Manuel olarak seçilecek
-    Area = "Turkey"  # Sabit
+        # Özellikleri birleştir ve DataFrame olarak oluştur
+        features = pd.DataFrame({
+            'average_rain_fall_mm_per_year': [average_rain_fall_mm_per_year],
+            'pesticides_tonnes': [pesticides_tonnes],
+            'avg_temp': [avg_temp],
+            'Area': [Area],
+            'Item': [Item],
+            'pesticides_per_hectare': [pesticides_per_hectare],
+            'rainfall_std': [rainfall_std]
+        })
 
-    # Sabit değerler
-    pesticides_tonnes = 38554.69
+        # Tahmin yap
+        prediction = model.predict(features)
+        prediction_original = np.exp(prediction[0])  # Logaritmik dönüşüm varsa geri dönüştür
 
-    # Ek özelliklerin hesaplanması
-    pesticides_per_hectare = pesticides_tonnes / (average_rain_fall_mm_per_year / 10000 + 1e-6)
-    rainfall_std = average_rain_fall_mm_per_year / avg_temp
-
-    # Tahmin için veri oluşturma
-    features = pd.DataFrame({
-        'average_rain_fall_mm_per_year': [average_rain_fall_mm_per_year],
-        'pesticides_tonnes': [pesticides_tonnes],
-        'avg_temp': [avg_temp],
-        'Area': [Area],
-        'Item': [Item],
-        'pesticides_per_hectare': [pesticides_per_hectare],
-        'rainfall_std': [rainfall_std]
-    })
-
-    # Tahmin
-    prediction = model.predict(features)
-    prediction_original = np.exp(prediction[0])  # Log dönüşüm geri alınır
-
-    return jsonify({
-        "Item": Item,
-        "Predicted Yield (kg/ha)": prediction_original
-    })
+        return render_template('index.html', prediction=prediction_original)
 
 if __name__ == "__main__":
     app.run(debug=True)
